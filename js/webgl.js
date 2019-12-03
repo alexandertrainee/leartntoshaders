@@ -1,12 +1,12 @@
 var initWebgl = function(){
-    var vertexShader;
-    var fragmentShader;
+    var VS;
+    var FS;
     loadTextResource("../shaders/vertexShader.glsl").then(function(result){
-        vertexShader = result;
+        VS = result;
         return loadTextResource("../shaders/fragmentShader.glsl");
     }).then(function(result){
-        fragmentShader = result;
-        return StartWebgl(vertexShader,fragmentShader);
+        FS = result;
+        return StartWebgl(VS,FS);
     }).catch(function(error){
         alert("some error happened");
         console.error(error);
@@ -28,7 +28,11 @@ var loadTextResource = function(url){
 }
 
 
-var StartWebgl = function(a,b){
+var StartWebgl = function(vertexShader, fragmentShader){
     alert("all is okey")
 }
-initWebgl();
+
+document.addEventListener("DOMContentLoaded" , function(){
+    initWebgl();
+})
+
