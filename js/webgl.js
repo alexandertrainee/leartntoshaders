@@ -86,9 +86,37 @@ function StartWebgl(vertexSource, fragmentSource){
 
     let program = createProgram(gl, vertexShader, fragmentShader);
 
-}
+    let vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+    let coordinates = [
+        0.0 , 0.0,
+        -0.5, 0.5,
+        -0.5, -0.5
+    ];
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(coordinates), gl.STATIC_DRAW);
+
+    let positionAttributeLocation = gl.getAttribLocation(program, "vertexPosition");
+
+    gl.vertexAttribPointer(
+        positionAttributeLocation,
+        2,
+        gl.FLOAT,
+        false,
+        0,
+        0
+    );
+
+    gl.enableVertexAttribArray(positionAttributeLocation);
+
+    gl.clearColor(0.0,0.0,0.0,0.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.useProgram(program);
+    gl.drawArrays(gl.TRIANGLES, 0 , 3);
+};
 
 document.addEventListener("DOMContentLoaded" , function(){
     initWebgl();
-})
+});
 
