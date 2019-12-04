@@ -63,10 +63,12 @@ function createProgram(gl, vertexShader, fragmentShader){
     return undefined;
 }
 
+var program, gl, coordinates = [];
+
 function StartWebgl(vertexSource, fragmentSource){
 
     let canvas = document.getElementById("canvas");
-    let gl = canvas.getContext("webgl2");
+    gl = canvas.getContext("webgl2");
 
     if(!gl){
         return new Error("webgl2 not loaded :c");
@@ -81,19 +83,20 @@ function StartWebgl(vertexSource, fragmentSource){
 
    console.log(gl);
 
-    let vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexSource);
-    let fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
+   let vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexSource);
+   let fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
 
-    let program = createProgram(gl, vertexShader, fragmentShader);
+   program = createProgram(gl, vertexShader, fragmentShader);
 
+   canvas.addEventListener('mousedown', function(event){
+       onmousedown(event, canvas);
+   })
+
+}
+function draw(){
+    let vertices_count = coordinates.length /2;
     let vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-
-    let coordinates = [
-        0.0 , 0.0,
-        -0.5, 0.5,
-        -0.5, -0.5
-    ];
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(coordinates), gl.STATIC_DRAW);
 
@@ -104,17 +107,36 @@ function StartWebgl(vertexSource, fragmentSource){
         2,
         gl.FLOAT,
         false,
-        0,
-        0
+        0 * Float32Array.BYTES_PER_ELEMENT,
+        0 * Float32Array.BYTES_PER_ELEMENT,
     );
 
     gl.enableVertexAttribArray(positionAttributeLocation);
 
     gl.clearColor(0.0,0.0,0.0,0.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.BUFFER_DEPTH);
+    gl.enable(gl.DEPTH_TEST);
     gl.useProgram(program);
-    gl.drawArrays(gl.TRIANGLES, 0 , 3);
+    gl.drawArrays(gl.TRIANGLES, 0 , vertices_count);
+    gl.drawArrays(gl.POINTS, 0 , vertices_count);
 };
+
+function onmousedown(event, canvas){
+    let x = event.clientX;
+    let y = event.clientY;
+
+    let middle_x = gl.canvas.width / 2;
+    let middle_y = gl.canvas.height / 2;
+
+    let rect = canvas.getBoundingClientRect();
+
+    x = ((x - rect.left) - middle_x) / middle_x;
+    y = (middle_y - (y - rect.top)) / middle_y;
+
+    coordinates.push(x);
+    coordinates.push(y);
+    draw();
+}
 
 document.addEventListener("DOMContentLoaded" , function(){
     initWebgl();
